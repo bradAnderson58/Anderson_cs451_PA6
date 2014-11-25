@@ -7,7 +7,8 @@
 //--------------------------------------
 
 // light 0
-static GLfloat light0_position[] = {0, 50, 30, 1.0};   //depends on the size of the env
+static GLfloat light0_position[] = {10, 30, 20, 1.0};   //depends on the size of the env
+//static GLfloat light0_position[] = { 0, 40, 40, 1.0 };
 static GLfloat light0_positionInv[] = {10, -1.0, 0, 1.0};
 static GLfloat light0_ambient[]  = {0.2f, 0.2f, 0.2f, 1};
 static GLfloat light0_diffuse[]  = {0.8f, 0.8f, 0.8f, 1};

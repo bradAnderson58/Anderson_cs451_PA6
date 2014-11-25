@@ -30,6 +30,8 @@ RayTracer::RayTracer(list<model>& models) : m_models(models)
 	glGetDoublev(GL_MODELVIEW_MATRIX, modelM);	//get the modelview, projection, and viewport
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetIntegerv(GL_VIEWPORT, view);
+
+	srand(time(NULL));  //what up
 }
 
 inline void show_progress_bar(double ratio)
@@ -89,11 +91,10 @@ Ray RayTracer::create_a_random_ray(unsigned int x, unsigned int y)
 
 	//TODO: implement this
 	//hint: see slides on generating rays for perspective views
-	srand(time(NULL));
 
 	//offset X, Y by tiny amount
-	double xf = (double)((rand() % 10) / 10) + (double)x;
-	double yf = (double)((rand() % 10) / 10) + (double)(view[3] - y);
+	double xf = drand48() + (double)x;
+	double yf = drand48() + (double)(view[3] - y);
 
 	gluUnProject(xf, yf, 0, modelM, proj, view, nearx, neary, nearz);  //set pointPos
 	gluUnProject(xf, yf, 1, modelM, proj, view, farx, fary, farz);
@@ -110,7 +111,7 @@ Ray RayTracer::create_a_random_ray(unsigned int x, unsigned int y)
 	r.v = rayDir.normalize();
 
 	//show rays to debug
-	all_rays.push_back(r);
+	//all_rays.push_back(r);
 	return r;
 }
 
@@ -262,39 +263,32 @@ Vector3d RayTracer::raycolor(model& m, triangle * t, const Ray& r, Point3d pos)
 	Vector3d interNorm = (weights[0] * v0.n) + (weights[1] * v1.n) + (weights[2] * v2.n);
 
 	//This is the color
-	color = m.mat_color;
+	//color = m.mat_color;
 
-	//Get the light
+	//Get the light and eye vector?
 	Vector3d lightPos = Vector3d(light0_position[0], light0_position[1], light0_position[2]);
-
-	//Get the diffusion value
+	Vector3d eye = (Vector3d(camera[0], camera[1], camera[2]) - Vector3d(pos.get())).normalize();
 	Vector3d fragToLight = (lightPos - Vector3d(pos.get())).normalize();
-	float diffuse = fragToLight * interNorm;
 
-	//Get the specular value
-	camera;
-	m.mat_specular;
-	m.mat_shininess;
+	//Get the diffusion and specular value
+	float difTemp = fragToLight * interNorm;
+	Vector3d diffuse = m.mat_color * max(difTemp, 0.0f);
+	Vector3d lye = (fragToLight + eye).normalize();
+	Vector3d specular = m.mat_specular * pow(max(lye * interNorm, 0.0), m.mat_shininess);
 
-	Vector3d reflection = -2 * (fragToLight * interNorm)*interNorm - fragToLight;
-	Vector3d fragToEye = (Vector3d(camera[0], camera[1], camera[2]) - Vector3d(pos.get())).normalize();
-	float specular = reflection * fragToEye;
-	specular = pow(specular, 100);
-
+	color = diffuse + specular;
+	
 	//is the frag facing away from the light?
-	if (diffuse <= 0){
-		diffuse = 0;
-		return color * diffuse;
+	if (difTemp <= 0){
+		//diffuse = 0;
+		return color;
 	}
 	//diffuse not less than zero
 	else if (inshadow(pos, lightPos)){
 		return color / 3;
 	}
 
-	/*if (specular > 0.05){
-		diffuse += specular;  //if we have specular, add it to diffuse
-	}*/
-	return color * diffuse;
+	return color;
 }
 
 //check if a point p is in shadow

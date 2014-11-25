@@ -36,8 +36,8 @@ int main(int argc, char ** argv)
     // setup glut/gli
 	//
 	/////////////////////////////////////////////////////////////////
-	//unsigned int image_w = 680, image_h = 680;
-	unsigned int image_w = 128, image_h = 128;
+	unsigned int image_w = 680, image_h = 680;
+	//unsigned int image_w = 32, image_h = 32;
     glutInit( &argc, argv );
     glutInitDisplayMode( GLUT_RGB|GLUT_DOUBLE|GLUT_DEPTH );
 	glutInitWindowSize(image_w, image_h);
@@ -63,7 +63,7 @@ int main(int argc, char ** argv)
 	//
 	/////////////////////////////////////////////////////////////////
 
-	unsigned int n_ray = 1;
+	unsigned int n_ray = 100;
 	RayTracer rt(models);
 	rt.render(image_w, image_h, n_ray);
 	string imagename = "CS451_PA6_Ray_Casting";
